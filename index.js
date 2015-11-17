@@ -19,7 +19,7 @@ const walk = (modulesPath, excludeDir, callback) => {
     });
 };
 
-module.exports = _path => {
+module.exports = (_path, plugins) => {
 
     if (!_path) throw new Error('_path is required');
 
@@ -27,6 +27,10 @@ module.exports = _path => {
     if(!stat.isDirectory()) throw new Error('_path must be a directory');
 
     const router = new Router();
+
+    for(let name in plugins) {
+        router.plugin(name, plugins[name]);
+    }
 
     walk(_path, null, m => {
         const route_path = path.dirname(m).split(_path).pop();
