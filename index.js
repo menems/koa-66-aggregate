@@ -37,8 +37,8 @@ module.exports = options => {
     walk(options.path, { globs: options.globs}).forEach( m => {
         const abs = path.dirname(path.join(options.path,m));
         const route = abs.split(options.path).pop() || '/';
-        const router = require(abs);
-        router.mount(route , router);
+        const _router = require(abs);
+        router.mount(route , _router);
         debug('mount on %s', route);
     });
 
