@@ -4,38 +4,41 @@ const debug = require('debug')('koa-66-aggregate');
 const fs = require('fs');
 const path = require('path');
 const Router = require('koa-66');
+const walk = require('walk-sync');
 
-const walk = (modulesPath, excludeDir, callback) => {
-    fs.readdirSync(modulesPath).forEach(file => {
-        const newPath = path.join(modulesPath, file);
+module.exports = options => {
 
-        const stat = fs.statSync(newPath);
+    if (!options)
+        throw new Error('options is required');
 
-        if (stat && stat.isFile() && /^index\.(js|coffee)$/.test(file))
-            return callback(newPath);
+    if (typeof options != 'object')
+        throw new TypeError('options must be an object')
 
-        if (stat && stat.isDirectory() && file !== excludeDir)
-            return walk(newPath, excludeDir, callback);
-    });
-};
+    if (!options.path)
+        throw new Error('options.path is required');
 
-module.exports = (_path, plugins) => {
+    options.path = path.resolve(options.path);
 
-    if (!_path) throw new Error('_path is required');
+    const stat = fs.statSync(options.path);
 
-    const stat = fs.statSync(_path);
-    if(!stat.isDirectory()) throw new Error('_path must be a directory');
+    if(!stat.isDirectory())
+        throw new Error('options.path must be a directory');
+
+    options.globs = options.globs || ['**/index.js'];
 
     const router = new Router();
 
-    for(let name in plugins) {
-        router.plugin(name, plugins[name]);
+    if (options.plugins) {
+        for(let name in options.plugins) {
+            router.plugin(name, options.plugins[name]);
+        }
     }
 
-    walk(_path, null, m => {
-        const route_path = path.dirname(m).split(_path).pop();
-        debug('mount on %s', route_path);
-        router.mount(route_path, require(m));
+    walk(options.path, { globs: options.globs}).forEach( m => {
+        const abs = path.dirname(path.join(options.path,m));
+        const route = abs.split(options.path).pop() || '/';
+        debug('mount on %s', route);
+        router.mount(route , require(abs));
     });
 
     return router;
