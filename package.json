@@ -1,6 +1,6 @@
 {
   "name": "koa-66-aggregate",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "aggregate koa-66 router from directory",
   "main": "index.js",
   "scripts": {
