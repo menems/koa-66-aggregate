@@ -4,7 +4,9 @@
   "description": "aggregate koa-66 router from directory",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha --require should",
+    "test-cov": "istanbul cover _mocha -- --require should --bail",
+    "test-travis": "istanbul cover _mocha --report lcovonly -- --require should --bail"
   },
   "keywords": [
     "koa-66",
@@ -26,5 +28,10 @@
     "debug": "^2.2.0",
     "koa-66": "^0.7.2",
     "walk-sync": "^0.2.6"
+  },
+  "devDependencies": {
+    "istanbul": "^0.4.0",
+    "mocha": "^2.3.4",
+    "should": "^7.1.1"
   }
 }
