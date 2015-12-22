@@ -15,6 +15,8 @@ npm install koa-66-aggregate
 ```
 ## Options
 - `path` : path of routes directories
+- `useFiles`: use all file as auto prefix (default: false)
+- `autoPrefix`: add dir/file as prefix (default: true)
 - `plugins` : object of plugins available on each router instance
 - `globs` : default : ['**/index.js']
 

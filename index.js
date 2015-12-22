@@ -6,7 +6,7 @@ const path = require('path');
 const Router = require('koa-66');
 const walk = require('walk-sync');
 
-module.exports = options => {
+module.exports = function(options) {
 
     if (!options)
         throw new Error('options is required');
@@ -26,6 +26,12 @@ module.exports = options => {
 
     options.globs = options.globs || ['**/index.js'];
 
+    if ( options.useFiles)
+        options.globs = ['**/*.js'];
+
+    // add more options.
+    options.autoPrefix = options.autoPrefix || true;
+
     const router = new Router();
 
     if (options.plugins) {
@@ -35,11 +41,21 @@ module.exports = options => {
     }
 
     walk(options.path, {globs: options.globs}).forEach( m => {
-        const abs = path.dirname(path.join(options.path,m));
-        const route = abs.split(options.path).pop() || '/';
-        const _router = require(abs);
+        const _path = path.join(options.path, m);
+        const abs = path.dirname(_path);
+        let route = options.autoPrefix ? abs.split(options.path).pop() || '/' : '/';
+
+        if ( options.useFiles && options.autoPrefix) {
+            const fileName = path.basename(m, '.js');
+            if ( fileName !== 'index') {
+                route = route + '/' + fileName;
+            }
+        }
+
+        const _router = require(_path);
         router.mount(route , _router);
         debug('mount on %s', route);
+
     });
 
     return router;

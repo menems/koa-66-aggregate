@@ -58,6 +58,38 @@ describe('koa-66-aggregate', () => {
         done();
     });
 
+    it('should work as expected with file', done => {
+        const routes = agg({path: _path + '/routes2', useFiles: true});
+        routes.should.be.type('object');
+        routes.should.have.property('stacks');
+        routes.stacks.should.have.length(4);
+
+        routes.stacks[0].should.have.property('path', '/');
+        routes.stacks[1].should.have.property('path', '/test');
+        routes.stacks[2].should.have.property('path', '/test/toto');
+        routes.stacks[3].should.have.property('path', '/v1');
+
+        const fn1 = routes.stacks[0].middleware;
+        const fn2 = routes.stacks[1].middleware;
+        const fn3 = routes.stacks[2].middleware;
+        const fn4 = routes.stacks[3].middleware;
+
+        let ctx1 = {};
+        fn1(ctx1);
+        ctx1.should.have.property('body', 'index');
+
+        let ctx2 = {};
+        fn2(ctx2);
+        ctx2.should.have.property('body', 'test/index');
+        let ctx3 = {};
+        fn3(ctx3);
+        ctx3.should.have.property('body', 'test/toto');
+        let ctx4 = {};
+        fn4(ctx4);
+        ctx4.should.have.property('body', 'v1');
+        done();
+    });
+
     it('should attach plugin', done => {
         const routes = agg({
             path: _path + '/routes',
